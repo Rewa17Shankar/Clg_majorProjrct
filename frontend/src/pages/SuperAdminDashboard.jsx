@@ -1,139 +1,74 @@
-// // frontend/src/pages/SuperAdmin.jsx
-// import { useState, useEffect } from "react";
-// import { addUser, getUserCounts } from "../api/userApi";
-
-// function SuperAdmin() {
-//   const [form, setForm] = useState({ name: "", email: "", role: "Employee", password: "" });
-//   const [counts, setCounts] = useState({ HR: 0, Manager: 0, Employee: 0 });
-
-//   useEffect(() => {
-//     fetchCounts();
-//   }, []);
-
-//   const fetchCounts = async () => {
-//     const res = await getUserCounts();
-//     setCounts(res.data);
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     await addUser(form);
-//     alert("User Added!");
-//     fetchCounts();
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-gray-900 text-white flex">
-//       {/* Sidebar */}
-//       <aside className="w-64 bg-gray-800 p-6">
-//         <h2 className="text-xl font-bold mb-6">SuperAdmin</h2>
-//         <ul className="space-y-4">
-//           <li>Dashboard</li>
-//           <li>Add User</li>
-//           <li>Manage Users</li>
-//         </ul>
-//       </aside>
-
-//       {/* Main */}
-//       <main className="flex-1 p-8">
-//         <h1 className="text-3xl font-bold mb-6">SuperAdmin Dashboard</h1>
-
-//         {/* Counts */}
-//         <div className="grid grid-cols-3 gap-6 mb-10">
-//           <div className="bg-gray-800 p-6 rounded-lg text-center">
-//             <h2 className="text-2xl font-bold">{counts.HR}</h2>
-//             <p>HR Users</p>
-//           </div>
-//           <div className="bg-gray-800 p-6 rounded-lg text-center">
-//             <h2 className="text-2xl font-bold">{counts.Manager}</h2>
-//             <p>Managers</p>
-//           </div>
-//           <div className="bg-gray-800 p-6 rounded-lg text-center">
-//             <h2 className="text-2xl font-bold">{counts.Employee}</h2>
-//             <p>Employees</p>
-//           </div>
-//         </div>
-
-//         {/* Add User Form */}
-//         <div className="bg-gray-800 p-8 rounded-lg max-w-lg">
-//           <h2 className="text-xl font-semibold mb-6">Add New User</h2>
-//           <form onSubmit={handleSubmit} className="space-y-4">
-//             <input
-//               type="text"
-//               placeholder="Full Name"
-//               className="w-full px-4 py-2 rounded bg-gray-700 text-white"
-//               onChange={(e) => setForm({ ...form, name: e.target.value })}
-//             />
-//             <input
-//               type="email"
-//               placeholder="Email"
-//               className="w-full px-4 py-2 rounded bg-gray-700 text-white"
-//               onChange={(e) => setForm({ ...form, email: e.target.value })}
-//             />
-//             <select
-//               className="w-full px-4 py-2 rounded bg-gray-700 text-white"
-//               onChange={(e) => setForm({ ...form, role: e.target.value })}
-//             >
-//               <option>HR</option>
-//               <option>Manager</option>
-//               <option>Employee</option>
-//             </select>
-//             <input
-//               type="password"
-//               placeholder="Password"
-//               className="w-full px-4 py-2 rounded bg-gray-700 text-white"
-//               onChange={(e) => setForm({ ...form, password: e.target.value })}
-//             />
-//             <button className="w-full bg-indigo-600 py-2 rounded">Add User</button>
-//           </form>
-//         </div>
-//       </main>
-//     </div>
-//   );
-// }
-
-// export default SuperAdmin;
-
-
-
-
-
-// frontend/src/pages/SuperAdmin.jsx
+// frontend/src/pages/SuperAdminDashboard.jsx
 import { useState, useEffect } from "react";
-import {
-  UserPlus,
-  Users,
-  LayoutDashboard,
-  LogOut,
-  UserCircle,
-  Briefcase,
-  Shield,
-} from "lucide-react";
-import { addUser, getUserCounts } from "../api/userApi";
+import {LayoutDashboard, UserPlus, Users, LogOut, UserCircle, Briefcase, Shield, } from "lucide-react";
+import { addUser, getUserCounts, getAllUsers,resetUserPassword } from "../api/userApi";
+import { useNavigate } from "react-router-dom";  // ✅ import navigate
 
-const SuperAdmin = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
-  const [form, setForm] = useState({ name: "", email: "", role: "Employee", password: "" });
+function SuperAdminDashboard() {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    role: "Employee",
+    password: "",
+  });
+
   const [counts, setCounts] = useState({ HR: 0, Manager: 0, Employee: 0 });
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [users, setUsers] = useState([]);
+  const [selectedRole, setSelectedRole] = useState("HR");
+  const navigate = useNavigate(); // ✅ for logout redirection
 
-  useEffect(() => {
-    fetchCounts();
-  }, []);
+  // ✅ Logout handler
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    sessionStorage.clear();
+    navigate("/"); // redirect to role selection / login
+  };
 
+  // ✅ Fetch user counts
   const fetchCounts = async () => {
     try {
-      const res = await getUserCounts();
-      setCounts(res.data);
+      const data = await getUserCounts();
+      setCounts(data);
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching counts:", error);
     }
   };
 
+  // ✅ Fetch all users
+  const fetchUsers = async () => {
+    try {
+      const data = await getAllUsers();
+      setUsers(data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCounts();
+    fetchUsers();
+  }, []);
+
+  // ✅ Add User
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await addUser(form);
-    alert("User Added!");
-    fetchCounts();
+    try {
+      await addUser({
+        username: form.name,
+        email: form.email,
+        password: "welcome@123",
+        role_name: form.role,
+      });
+      alert("✅ User added successfully");
+      setForm({ name: "", email: "", role: "Employee", password: "" });
+      fetchCounts();
+      fetchUsers();
+    } catch (err) {
+      console.error("Error adding user:", err);
+      alert("❌ Failed to add user");
+    }
   };
 
   return (
@@ -146,7 +81,7 @@ const SuperAdmin = () => {
             onClick={() => setActiveTab("dashboard")}
             className={`flex items-center w-full px-4 py-2 rounded-lg transition ${
               activeTab === "dashboard"
-                ? "bg-gray-200 text-black font-medium"
+                ? "bg-blue-500 text-white"
                 : "text-gray-700 hover:bg-gray-100"
             }`}
           >
@@ -157,7 +92,7 @@ const SuperAdmin = () => {
             onClick={() => setActiveTab("addUser")}
             className={`flex items-center w-full px-4 py-2 rounded-lg transition ${
               activeTab === "addUser"
-                ? "bg-gray-200 text-black font-medium"
+                ? "bg-blue-500 text-white"
                 : "text-gray-700 hover:bg-gray-100"
             }`}
           >
@@ -168,7 +103,7 @@ const SuperAdmin = () => {
             onClick={() => setActiveTab("manageUsers")}
             className={`flex items-center w-full px-4 py-2 rounded-lg transition ${
               activeTab === "manageUsers"
-                ? "bg-gray-200 text-black font-medium"
+                ? "bg-blue-500 text-white"
                 : "text-gray-700 hover:bg-gray-100"
             }`}
           >
@@ -176,7 +111,12 @@ const SuperAdmin = () => {
             Manage Users
           </button>
         </nav>
-        <button className="flex items-center px-4 py-2 mt-auto text-red-600 hover:bg-gray-100 rounded-lg">
+
+        {/* ✅ Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="flex items-center px-4 py-2 mt-auto text-red-600 hover:bg-gray-100 rounded-lg"
+        >
           <LogOut className="mr-2 h-5 w-5" />
           Logout
         </button>
@@ -195,6 +135,7 @@ const SuperAdmin = () => {
 
         {/* Content */}
         <div className="p-8 flex-1 overflow-y-auto">
+          {/* Dashboard */}
           {activeTab === "dashboard" && (
             <div>
               <h1 className="text-3xl font-semibold mb-2">
@@ -205,109 +146,154 @@ const SuperAdmin = () => {
               </p>
 
               <div className="grid grid-cols-3 gap-6">
-                <div className="bg-white shadow hover:shadow-lg transition p-6 rounded-xl text-center">
-                  <Shield className="h-8 w-8 text-gray-700 mx-auto mb-2" />
-                  <h2 className="text-2xl font-bold text-gray-900">{counts.HR}</h2>
-                  <p className="text-gray-500">HR Users</p>
+                <div className="bg-gradient-to-r from-blue-500 to-blue-700 text-white shadow p-6 rounded-xl text-center">
+                  <Shield className="h-8 w-8 mx-auto mb-2" />
+                  <h2 className="text-2xl font-bold">{counts.HR}</h2>
+                  <p>HR Users</p>
                 </div>
-                <div className="bg-white shadow hover:shadow-lg transition p-6 rounded-xl text-center">
-                  <Briefcase className="h-8 w-8 text-gray-700 mx-auto mb-2" />
-                  <h2 className="text-2xl font-bold text-gray-900">{counts.Manager}</h2>
-                  <p className="text-gray-500">Managers</p>
+                <div className="bg-gradient-to-r from-green-500 to-green-700 text-white shadow p-6 rounded-xl text-center">
+                  <Briefcase className="h-8 w-8 mx-auto mb-2" />
+                  <h2 className="text-2xl font-bold">{counts.Manager}</h2>
+                  <p>Managers</p>
                 </div>
-                <div className="bg-white shadow hover:shadow-lg transition p-6 rounded-xl text-center">
-                  <Users className="h-8 w-8 text-gray-700 mx-auto mb-2" />
-                  <h2 className="text-2xl font-bold text-gray-900">{counts.Employee}</h2>
-                  <p className="text-gray-500">Employees</p>
+                <div className="bg-gradient-to-r from-purple-500 to-purple-700 text-white shadow p-6 rounded-xl text-center">
+                  <Users className="h-8 w-8 mx-auto mb-2" />
+                  <h2 className="text-2xl font-bold">{counts.Employee}</h2>
+                  <p>Employees</p>
                 </div>
               </div>
             </div>
           )}
 
+          {/* Add User */}
           {activeTab === "addUser" && (
             <div className="bg-white shadow-md p-8 rounded-xl max-w-lg">
               <h2 className="text-2xl font-semibold mb-6">Add New User</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <input
                   type="text"
-                  placeholder="Full Name"
-                  className="w-full border rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-gray-300"
+                  placeholder="Name"
+                  className="w-full border rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-300"
+                  value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  required
                 />
                 <input
                   type="email"
-                  placeholder="Email Address"
-                  className="w-full border rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-gray-300"
+                  placeholder="Email"
+                  className="w-full border rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-300"
+                  value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  required
                 />
                 <select
-                  className="w-full border rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-gray-300"
+                  className="w-full border rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-300"
+                  value={form.role}
                   onChange={(e) => setForm({ ...form, role: e.target.value })}
+                  required
                 >
-                  <option>HR</option>
-                  <option>Manager</option>
-                  <option>Employee</option>
+                  <option value="HR">HR</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Employee">Employee</option>
                 </select>
                 <input
                   type="password"
                   placeholder="Password"
-                  className="w-full border rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-gray-300"
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  className="w-full border rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-300"
+                  value={`welcome@123`}
+                  onChange={(e) =>
+                    setForm({ ...form, password: e.target.value })
+                  }
+                  required
                 />
-                <button className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition">
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+                >
                   Create User
                 </button>
               </form>
             </div>
           )}
 
+          {/* Manage Users */}
           {activeTab === "manageUsers" && (
             <div>
               <h2 className="text-2xl font-semibold mb-6">Manage Users</h2>
+
+              {/* Role Tabs */}
+              <div className="flex space-x-4 mb-6">
+                {["HR", "Manager", "Employee"].map((role) => (
+                  <button
+                    key={role}
+                    onClick={() => setSelectedRole(role)}
+                    className={`px-4 py-2 rounded-lg font-medium transition ${
+                      selectedRole === role
+                        ? "bg-blue-600 text-white shadow-md"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                  >
+                    {role}
+                  </button>
+                ))}
+              </div>
+
+              {/* User Table */}
               <table className="w-full bg-white shadow-md rounded-xl overflow-hidden">
                 <thead className="bg-gray-100 text-gray-600">
                   <tr>
-                    <th className="py-3 px-4 text-left">Name</th>
-                    <th className="py-3 px-4 text-left">Email</th>
-                    <th className="py-3 px-4 text-left">Role</th>
-                    <th className="py-3 px-4 text-left">Action</th>
+                  <th className="py-3 px-4 text-left">ID</th>
+                  <th className="py-3 px-4 text-left">Name</th>
+                  <th className="py-3 px-4 text-left">Email</th>
+                  <th className="py-3 px-4 text-left">Role</th>
+                  <th className="py-3 px-4 text-left">Must Reset</th> {/* ✅ New column */}
+                  <th className="py-3 px-4 text-left">Action</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr className="border-t hover:bg-gray-50">
-                    <td className="py-3 px-4">John Doe</td>
-                    <td className="py-3 px-4">john@example.com</td>
-                    <td className="py-3 px-4">
-                      <span className="px-2 py-1 text-xs font-semibold bg-gray-200 text-gray-800 rounded-full">
-                        Manager
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 space-x-3">
-                      <button className="text-black hover:underline">
-                        Edit
-                      </button>
-                      <button className="text-red-600 hover:underline">
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                  <tr className="border-t hover:bg-gray-50">
-                    <td className="py-3 px-4">Jane Smith</td>
-                    <td className="py-3 px-4">jane@example.com</td>
-                    <td className="py-3 px-4">
-                      <span className="px-2 py-1 text-xs font-semibold bg-gray-200 text-gray-800 rounded-full">
-                        HR
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 space-x-3">
-                      <button className="text-black hover:underline">
-                        Edit
-                      </button>
-                      <button className="text-red-600 hover:underline">
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
+                 <tbody>
+                  {users
+                    .filter((user) => user.role === selectedRole)
+                    .map((user) => (
+                      <tr key={user.id} className="border-t hover:bg-gray-50">
+                        <td className="py-3 px-4">{user.id}</td>
+                        <td className="py-3 px-4">{user.name}</td>
+                        <td className="py-3 px-4">{user.email}</td>
+                        <td className="py-3 px-4">
+                          <span className="px-2 py-1 text-xs font-semibold bg-gray-200 text-gray-800 rounded-full">
+                            {user.role}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          {user.must_reset ? (
+                            <span className="text-red-600 font-medium">True</span>
+                          ) : (
+                            <span className="text-green-600 font-medium">False</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 space-x-3">
+                          <button className="text-blue-600 hover:underline">Edit</button>
+                          <button className="text-red-600 hover:underline">Delete</button>
+                          {/* ✅ Reset password button */}
+                          <button
+                            className="text-orange-600 hover:underline"
+                            onClick={async () => {
+                                try {
+                                  const res = await resetUserPassword(user.id);
+                                  alert(res.message); // "Password reset enforced successfully"
+                                  // ✅ update local state instantly
+                                  setUsers((prev) =>
+                                    prev.map((u) => (u.id === user.id ? res.user : u))
+                                  );
+                                } catch (err) {
+                                  alert(err.error || "Failed to reset password");
+                                }
+                              }}
+                          >
+                            Reset Password
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -316,6 +302,6 @@ const SuperAdmin = () => {
       </main>
     </div>
   );
-};
+}
 
-export default SuperAdmin;
+export default SuperAdminDashboard;

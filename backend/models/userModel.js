@@ -1,72 +1,60 @@
-// // import supabase from "../config/supabaseClient.js";
-
-// // export const getUserByUsername = async (username) => {
-// //   return await supabase
-// //     .from("users")
-// //     .select("id, username, password, must_reset, role_id")
-// //     .eq("username", username)
-// //     .single();
-// // };
-
-// // export const updateUserPassword = async (userId, hashedPassword) => {
-// //   return await supabase
-// //     .from("users")
-// //     .update({ password: hashedPassword, must_reset: false })
-// //     .eq("id", userId);
-// // };
-
-// // export const getSuperAdminByEmail = async (email) => {
-// //   return await supabase
-// //     .from("users")
-// //     .select("id, email, password, must_reset, role_id")
-// //     .eq("email", email)
-// //     .single();
-// // };
-
-
-
-// // models/userModel.js
-// import supabase from "../config/supabaseClient.js";
-
-// export const findUserByEmail = async (email) => {
-//   const { data, error } = await supabase
-//     .from("users")
-//     .select("*")
-//     .eq("email", email)
-//     .single();
-
-//   if (error) throw error;
-//   return data;
-// };
-
-// export const createUser = async (email, passwordHash, role) => {
-//   const { data, error } = await supabase
-//     .from("users")
-//     .insert([{ email, password: passwordHash, role }])
-//     .select()
-//     .single();
-
-//   if (error) throw error;
-//   return data;
-// };
-
-
-
-
-// backend/models/userModel.js
 import supabase from "../config/supabaseClient.js";
-
-export const createUser = async ({ name, email, role, password }) => {
-  return await supabase
+export const getAllUsersWithDepartment = async () => {
+  const { data, error } = await supabase
     .from("users")
-    .insert([{ name, email, role, password }]);
+    .select("id, username, email, department_id, departments(name), roles(role_name)")
+    .order("id", { ascending: true });
+
+  if (error) throw error;
+
+  return data.map((u) => ({
+    id: u.id,
+    username: u.username,
+    email: u.email,
+    department_id: u.department_id,
+    department_name: u.departments?.name || null, // ✅ use name from DB
+    role: u.roles?.role_name || "User",
+  }));
 };
 
-export const getUserCounts = async () => {
-  const roles = ["HR", "Manager", "Employee"];
-  let counts = {};
+export const updateUserDesignation = async (userId, designationId) => {
+  const { error } = await supabase
+    .from("users")
+    .update({ designation_id: designationId })
+    .eq("id", userId);
+  if (error) throw error;
+};
 
-  for (let role of roles) {
+// Update user department
+export const updateUserDepartment = async (userId, departmentId) => {
+  const { data, error } = await supabase
+    .from("users")
+    .update({ department_id: departmentId })
+    .eq("id", userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+// ➡️ Insert new user
+export const createUser = async ({ name, email, role, password }) => {
+  const { data, error } = await supabase
+    .from("users")
+    .insert([{ name, email, role, password }])
+    .select();
+
+  if (error) throw new Error(error.message);
+  return data[0];
+};
+
+// ➡️ Get user counts by role
+export const getUserCountsModel = async () => {
+  const roles = ["HR", "Manager", "Employee"];
+  const counts = {};
+
+  for (const role of roles) {
     const { count, error } = await supabase
       .from("users")
       .select("*", { count: "exact", head: true })

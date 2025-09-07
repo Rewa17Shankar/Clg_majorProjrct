@@ -1,15 +1,3 @@
-// import { SignIn } from "@clerk/clerk-react";
-
-// const SuperAdmin = () => {
-//   return (
-//     <div className="flex items-center justify-center min-h-screen bg-gray-50">
-//       <SignIn routing="path" path="/admin" />
-//     </div>
-//   );
-// };
-
-// export default SuperAdmin;
-
 
 import { SignIn, SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
 import SuperAdminDashboard from "./SuperAdminDashboard";

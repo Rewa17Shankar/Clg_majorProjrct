@@ -9,20 +9,47 @@ const RoleSelect = () => {
   const [selectedRole, setSelectedRole] = useState("");
   const navigate = useNavigate();
 
-  const handleConfirm = () => {
-    if (selectedRole) {
-      setRole(selectedRole);
-      setUser({
-        username: clerkUser?.fullName || clerkUser?.primaryEmailAddress?.emailAddress,
-      });
+  // const handleConfirm = () => {
+  //   if (selectedRole) {
+  //     setRole(selectedRole);
+  //     setUser({
+  //       username: clerkUser?.fullName || clerkUser?.primaryEmailAddress?.emailAddress,
+  //     });
 
-      if (selectedRole === "superadmin") {
-        navigate("/admin"); // Clerk login for superadmin
-      } else {
-        navigate("/login"); // Custom login for other roles
-      }
+  //     if (selectedRole === "superadmin") {
+  //       navigate("/admin"); // Clerk login for superadmin
+  //     } else {
+  //       navigate("/login"); // Custom login for other roles
+  //     }
+  //   }
+  // };
+
+
+  const handleConfirm = () => {
+  if (selectedRole) {
+    setRole(selectedRole);
+    setUser({
+      username: clerkUser?.fullName || clerkUser?.primaryEmailAddress?.emailAddress,
+    });
+
+    // ✅ persist role and user
+    localStorage.setItem("role", selectedRole);
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        username: clerkUser?.fullName || clerkUser?.primaryEmailAddress?.emailAddress,
+      })
+    );
+
+    if (selectedRole === "superadmin") {
+      navigate("/admin");
+    } else if (selectedRole === "hr") {
+      navigate("/login"); 
+    } else {
+      navigate("/login");
     }
-  };
+  }
+};
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">

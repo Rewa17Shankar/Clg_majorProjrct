@@ -1,30 +1,267 @@
-// backend/controllers/userController.js
+import supabase from "../config/supabaseClient.js";
 import bcrypt from "bcrypt";
-import { createUser, getUserCounts } from "../models/userModel.js";
+import {getAllUsersWithDepartment, updateUserDepartment, } from "../models/userModel.js";
 
-export const addUser = async (req, res) => {
+export const fetchUsers = async (req, res) => {
   try {
-    const { name, email, role, password } = req.body;
-
-    if (!name || !email || !role || !password) {
-      return res.status(400).json({ error: "All fields required" });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const { data, error } = await createUser({ name, email, role, password: hashedPassword });
-
-    if (error) return res.status(400).json({ error: error.message });
-
-    res.status(201).json({ message: "User created successfully", data });
+    const users = await getAllUsersWithDepartment();
+    res.json(users);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-export const fetchCounts = async (req, res) => {
+export const changeUserDepartment = async (req, res) => {
   try {
-    const counts = await getUserCounts();
-    res.json(counts);
+    const { userId, departmentId } = req.body;
+    const updated = await updateUserDepartment(userId, departmentId);
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Get user profile by ID
+export const getUserProfile = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const { data, error } = await supabase
+      .from("users")
+      .select("id, username, email, role_id")
+      .eq("id", userId)
+      .single();
+
+    if (error || !data) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Fetch role name
+    const { data: roleData, error: roleError } = await supabase
+      .from("roles")
+      .select("role_name")
+      .eq("id", data.role_id)
+      .single();
+
+    if (roleError) throw roleError;
+
+    return res.json({
+      id: data.id,
+      username: data.username,
+      email: data.email,
+      role: roleData?.role_name || "Unknown",
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+
+export const updatePassword = async (req, res) => {
+  try {
+    const { userId, newPassword } = req.body;
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    const { data, error } = await supabase
+      .from("users")
+      .update({
+        password: hashedPassword,
+        must_reset: false,
+      })
+      .eq("id", userId)
+      .select();
+
+    if (error) return res.status(400).json({ error: error.message });
+
+    res.json({ message: "Password updated successfully", user: data[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+export const loginUser = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    // find user
+    const { data: users, error } = await supabase
+      .from("users")
+      .select("id, username, password, must_reset, role_id")
+      .eq("username", username)
+      .single();
+
+    if (error || !users) return res.status(400).json({ error: "Invalid username" });
+
+    const match = await bcrypt.compare(password, users.password);
+    if (!match) return res.status(400).json({ error: "Invalid password" });
+
+    if (users.must_reset) {
+      return res.json({
+        mustReset: true,
+        userId: users.id,
+        message: "Password reset required",
+      });
+    }
+
+    res.json({
+      mustReset: false,
+      userId: users.id,
+      roleId: users.role_id,
+      username: users.username,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+export const resetPassword = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    // update must_reset flag
+    const { data, error } = await supabase
+      .from("users")
+      .update({ must_reset: true })
+      .eq("id", userId)
+      .select("id, username, email, role_id, must_reset") // ✅ return updated user
+      .single();
+
+    if (error) throw error;
+
+    // also fetch role name
+    const { data: roleData, error: roleError } = await supabase
+      .from("roles")
+      .select("role_name")
+      .eq("id", data.role_id)
+      .single();
+
+    if (roleError) throw roleError;
+
+    // formatted user object
+    const updatedUser = {
+      id: data.id,
+      name: data.username,
+      email: data.email,
+      role: roleData?.role_name || "Unknown",
+      must_reset: data.must_reset,
+    };
+
+    return res.json({
+      message: "Password reset enforced successfully",
+      user: updatedUser, // ✅ send updated user
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+
+
+export const getAllUsers = async (req, res) => {
+  try {
+    // get users with must_reset
+    const { data: users, error: userError } = await supabase
+      .from("users")
+      .select("id, username, email, role_id, must_reset"); // ✅ added must_reset
+
+    if (userError) throw userError;
+
+    // get roles
+    const { data: roles, error: roleError } = await supabase
+      .from("roles")
+      .select("id, role_name");
+
+    if (roleError) throw roleError;
+
+    // map role_id → role_name
+    const roleMap = {};
+    roles.forEach((r) => (roleMap[r.id] = r.role_name));
+
+    const formatted = users.map((u) => ({
+      id: u.id,
+      name: u.username,
+      email: u.email,
+      role: roleMap[u.role_id] || "Unknown",
+      must_reset: u.must_reset, // ✅ include must_reset in response
+    }));
+
+    return res.json(formatted);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+
+
+
+export const getUserCounts = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .select("role_id, roles!inner(role_name)");
+
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    const counts = { HR: 0, Manager: 0, Employee: 0 };
+
+    data.forEach((u) => {
+      if (u.roles.role_name === "HR") counts.HR++;
+      if (u.roles.role_name === "Manager") counts.Manager++;
+      if (u.roles.role_name === "Employee") counts.Employee++;
+    });
+
+    return res.json(counts);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+export const addUser = async (req, res) => {
+  try {
+    const { username, email, password, role_name } = req.body;
+
+    // Validate input
+    if (!username || !password || !role_name) {
+      return res.status(400).json({ error: "Username, password, and role are required" });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Get role_id from roles table
+    const { data: roleData, error: roleError } = await supabase
+      .from("roles")
+      .select("id")
+      .eq("role_name", role_name)
+      .single();
+
+    if (roleError || !roleData) {
+      return res.status(400).json({ error: "Invalid role" });
+    }
+
+    // Insert into users table
+    const { data, error } = await supabase
+      .from("users")
+      .insert([
+        {
+          username,
+          email,
+          password: hashedPassword,
+          role_id: roleData.id,
+        },
+      ])
+      .select();
+
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    res.status(201).json({ message: "User created successfully", user: data[0] });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

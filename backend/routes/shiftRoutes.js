@@ -3,31 +3,26 @@ import supabase from "../config/supabaseClient.js";
 
 const router = express.Router();
 
-// Mark attendance
+// Create new shift
 router.post("/", async (req, res) => {
   try {
-    const { employee_id, shift_id, date, status } = req.body;
+    const { shift_name, start_time, end_time } = req.body;
 
     const { data, error } = await supabase
-      .from("attendance")
-      .insert([{ employee_id, shift_id, date, status }]);
+      .from("shifts")
+      .insert([{ shift_name, start_time, end_time }]);
 
     if (error) throw error;
-    res.status(201).json({ message: "Attendance marked successfully", data });
+    res.status(201).json({ message: "Shift created successfully", data });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// Get attendance list
+// Get all shifts
 router.get("/", async (req, res) => {
   try {
-    const { data, error } = await supabase.from("attendance").select(`
-      id, date, status,
-      users (name, email),
-      shifts (shift_name, start_time, end_time)
-    `);
-
+    const { data, error } = await supabase.from("shifts").select("*");
     if (error) throw error;
     res.json(data);
   } catch (err) {

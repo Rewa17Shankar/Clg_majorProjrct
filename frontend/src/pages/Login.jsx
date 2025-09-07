@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { User, Lock } from "lucide-react";
+import { loginUser } from "../api/userApi";
 
 const Login = () => {
   const { role, setUser } = useAuthContext();
@@ -9,16 +10,24 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
+const handleLogin = async (e) => {
+  e.preventDefault();
 
-    if (username && password) {
-      setUser({ username });
-      navigate("/dashboard");
+  if (!username || !password) return alert("Enter username & password");
+
+  try {
+    const res = await loginUser(username, password);
+
+    if (res.mustReset) {
+      navigate(`/reset-password/${res.userId}`);
     } else {
-      alert("Enter username & password");
+      setUser({ username: res.username, roleId: res.roleId });
+      navigate("/dashboard");
     }
-  };
+  } catch (err) {
+    alert(err.error || "Login failed");
+  }
+};
 
   if (!role) {
     return (
@@ -73,3 +82,6 @@ const Login = () => {
 };
 
 export default Login;
+
+
+
