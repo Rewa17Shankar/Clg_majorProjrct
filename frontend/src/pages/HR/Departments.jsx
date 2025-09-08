@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
-import { getDepartments } from "../api/departmentApi";
-import { getAllUsers, updateUserDepartment } from "../api/userApi";
+import { getDepartments } from "../../api/departmentApi";
+import { getAllUsers, updateUserDepartment } from "../../api/userApi";
 
 function Departments() {
   const [departments, setDepartments] = useState([]);

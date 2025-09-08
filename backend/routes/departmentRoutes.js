@@ -1,7 +1,11 @@
 import express from "express";
 import { getAllDepartments, addDepartment } from "../models/departmentModel.js";
-
+import { getDepartments, getDesignationsByDept } from "../controllers/departmentController.js";
 const router = express.Router();
+
+
+router.get("/", getDepartments);
+router.get("/:deptId/designations", getDesignationsByDept);
 
 // Get all departments
 router.get("/", async (req, res) => {

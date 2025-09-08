@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useAuthContext } from "../context/AuthContext";
+import { useAuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { User, Lock } from "lucide-react";
-import { loginUser } from "../api/userApi";
+import { loginUser } from "../../api/userApi";
 
 const Login = () => {
   const { role, setUser } = useAuthContext();

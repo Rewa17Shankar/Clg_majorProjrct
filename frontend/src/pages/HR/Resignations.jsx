@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getResignations, updateResignationStatus } from "../api/resignationApi";
+import { getResignations, updateResignationStatus } from "../../api/resignationApi";
 
 const Resignations = () => {
   const [resignations, setResignations] = useState([]);

@@ -313,17 +313,8 @@
 
 // frontend/src/pages/Leaves.jsx
 import { useEffect, useMemo, useState } from "react";
-import {
-  getLeaveTypes,
-  createLeaveType,
-  updateLeaveType,
-  deleteLeaveType,
-  getLeaveRequests,
-  createLeaveRequest,
-  setLeaveStatus,
-  deleteLeaveRequestApi,
-} from "../api/leaveApi";
-import { fetchEmployees } from "../api/employeeApi";
+import {getLeaveTypes, createLeaveType, updateLeaveType, deleteLeaveType, getLeaveRequests, createLeaveRequest, setLeaveStatus, deleteLeaveRequestApi, } from "../../api/leaveApi";
+import { fetchEmployees } from "../../api/employeeApi";
 
 const StatusPill = ({ value }) => {
   const cls = useMemo(() => {

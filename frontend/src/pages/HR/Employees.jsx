@@ -71,7 +71,7 @@
 
 
 import { useEffect, useState } from "react";
-import { fetchEmployees, deleteEmployee } from "../api/employeeApi";
+import { fetchEmployees, deleteEmployee } from "../../api/employeeApi";
 
 export default function Employees() {
   const [employees, setEmployees] = useState([]);

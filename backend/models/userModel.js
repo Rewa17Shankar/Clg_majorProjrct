@@ -1,4 +1,37 @@
 import supabase from "../config/supabaseClient.js";
+
+// ✅ Get all users with department + role join
+export const getAllUsers = async () => {
+  const { data, error } = await supabase
+    .from("users")
+    .select(`
+      id,
+      username,
+      email,
+      department_id,
+      designation_id,
+      date_of_joining,
+      roles (role_name),
+      departments (name)
+    `)
+    .order("id", { ascending: true });
+
+  if (error) throw error;
+
+  // flatten role and department
+  return data.map((u) => ({
+    id: u.id,
+    username: u.username,
+    email: u.email,
+    role: u.roles?.role_name || "N/A",
+    department: u.departments?.name || "None",
+    department_id: u.department_id,
+    designation_id: u.designation_id,
+    date_of_joining: u.date_of_joining,
+  }));
+};
+
+
 export const getAllUsersWithDepartment = async () => {
   const { data, error } = await supabase
     .from("users")

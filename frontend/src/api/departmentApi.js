@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// const API = "http://localhost:5000/api/departments";
-const API = "https://clg-majorprojrct.onrender.com/api/departments";
+const API = "http://localhost:5000/api/departments";
+// const API = "https://clg-majorprojrct.onrender.com/api/departments";
 export const getDepartments = async () => {
   const res = await axios.get(API);
   return res.data;
@@ -9,5 +9,10 @@ export const getDepartments = async () => {
 
 export const addDepartment = async (department_name) => {
   const res = await axios.post(API, { department_name });
+  return res.data;
+};
+
+export const getDesignationsByDept = async (deptId) => {
+  const res = await axios.get(`${API}/${deptId}/designations`);
   return res.data;
 };

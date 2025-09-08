@@ -221,19 +221,64 @@ export const getUserCounts = async (req, res) => {
   }
 };
 
+// export const addUser = async (req, res) => {
+//   try {
+//     const { username, email, password, role_name } = req.body;
+
+//     // Validate input
+//     if (!username || !password || !role_name) {
+//       return res.status(400).json({ error: "Username, password, and role are required" });
+//     }
+
+//     // Hash password
+//     const hashedPassword = await bcrypt.hash(password, 10);
+
+//     // Get role_id from roles table
+//     const { data: roleData, error: roleError } = await supabase
+//       .from("roles")
+//       .select("id")
+//       .eq("role_name", role_name)
+//       .single();
+
+//     if (roleError || !roleData) {
+//       return res.status(400).json({ error: "Invalid role" });
+//     }
+
+//     // Insert into users table
+//     const { data, error } = await supabase
+//       .from("users")
+//       .insert([
+//         {
+//           username,
+//           email,
+//           password: hashedPassword,
+//           role_id: roleData.id,
+//         },
+//       ])
+//       .select();
+
+//     if (error) {
+//       return res.status(400).json({ error: error.message });
+//     }
+
+//     res.status(201).json({ message: "User created successfully", user: data[0] });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };
+
+
 export const addUser = async (req, res) => {
   try {
-    const { username, email, password, role_name } = req.body;
+    const { username, email, password, role_name, department_id, designation_id, date_of_joining } = req.body;
 
-    // Validate input
     if (!username || !password || !role_name) {
       return res.status(400).json({ error: "Username, password, and role are required" });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Get role_id from roles table
+    // ✅ Get role_id
     const { data: roleData, error: roleError } = await supabase
       .from("roles")
       .select("id")
@@ -244,22 +289,21 @@ export const addUser = async (req, res) => {
       return res.status(400).json({ error: "Invalid role" });
     }
 
-    // Insert into users table
+    // ✅ Insert into users table
     const { data, error } = await supabase
       .from("users")
-      .insert([
-        {
-          username,
-          email,
-          password: hashedPassword,
-          role_id: roleData.id,
-        },
-      ])
+      .insert([{
+        username,
+        email,
+        password: hashedPassword,
+        role_id: roleData.id,
+        department_id,
+        designation_id,
+        date_of_joining
+      }])
       .select();
 
-    if (error) {
-      return res.status(400).json({ error: error.message });
-    }
+    if (error) return res.status(400).json({ error: error.message });
 
     res.status(201).json({ message: "User created successfully", user: data[0] });
   } catch (err) {

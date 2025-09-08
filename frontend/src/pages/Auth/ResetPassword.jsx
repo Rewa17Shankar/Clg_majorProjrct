@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { updatePassword } from "../api/userApi";
+import { updatePassword } from "../../api/userApi";
 
 const ResetPassword = () => {
   const { userId } = useParams();
