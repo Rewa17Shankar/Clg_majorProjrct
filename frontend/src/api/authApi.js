@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/auth";
-// const API = "https://clg-majorprojrct.onrender.com/api/auth";
+// const API_URL = "http://localhost:5000/api/auth";
+const API = "https://clg-majorprojrct.onrender.com/api/auth";
 export const loginUser = (username, password) =>
   axios.post(`${API_URL}/login`, { username, password });
 
