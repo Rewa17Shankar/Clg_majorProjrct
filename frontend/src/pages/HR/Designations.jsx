@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getAllUsers, updateUserDesignation } from "../../api/userApi";
-import { getAllDesignations } from "../../api/designationApi";
+import { getAllDesignations } from "../../api/HR/designationApi";
 
 function Designation() {
   const [users, setUsers] = useState([]);

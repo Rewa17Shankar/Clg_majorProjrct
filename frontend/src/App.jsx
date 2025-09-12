@@ -109,7 +109,39 @@ function App() {
         <Route path="/hr/resignations" element={<HR />} />
 
         {/* Manager Routes */}
-        <Route path="/manager" element={<Manager />} />
+        <Route path="/manager/*" element={<Manager />} />
+        {/* <Route path="/manager/Announcements" element={<Manager />} />
+        <Route path="/manager/Assets" element={<Manager />} />
+        <Route path="/manager/AttendanceShift" element={<Manager />} />
+        <Route path="/manager/FeedbackGrievance" element={<Manager />} />
+        <Route path="/manager/GoalsTasks" element={<Manager />} />
+        <Route path="/manager/Meetings" element={<Manager />} />
+        <Route path="/manager/Performance" element={<Manager />} />
+        <Route path="/manager/Skills" element={<Manager />} />
+        <Route path="/manager/TeamManagement" element={<Manager />} />
+        <Route path="/manager/TrainingDevelopment" element={<Manager />} /> */}
+
+        {/* <Route path="/manager/announcements" element={<Manager />} />
+        <Route path="/manager/assets" element={<Manager />} />
+        <Route path="/manager/attendanceshift" element={<Manager />} />
+        <Route path="/manager/feedbackgrievance" element={<Manager />} />
+        <Route path="/manager/goalstasks" element={<Manager />} />
+        <Route path="/manager/meetings" element={<Manager />} />
+        <Route path="/manager/performance" element={<Manager />} />
+        <Route path="/manager/skills" element={<Manager />} />
+        <Route path="/manager/teammanagement" element={<Manager />} />
+        <Route path="/manager/trainingdevelopment" element={<Manager />} /> */}
+
+        {/* <Route path="/manager/team" element={<Manager />} />
+        <Route path="/manager/attendance" element={<Manager />} />
+        <Route path="/manager/performance" element={<Manager />} />
+        <Route path="/manager/goals" element={<Manager />} />
+        <Route path="/manager/training" element={<Manager />} />
+        <Route path="/manager/skills" element={<Manager />} />
+        <Route path="/manager/assets" element={<Manager />} />
+        <Route path="/manager/announcements" element={<Manager />} />
+        <Route path="/manager/feedback" element={<Manager />} />
+        <Route path="/manager/meetings" element={<Manager />} /> */}
 
         {/* Employee Routes */}
         <Route path="/employee" element={<Employee />} />

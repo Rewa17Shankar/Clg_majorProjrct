@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { getDepartments } from "../../api/departmentApi";
+import { getDepartments } from "../../api/HR/departmentApi";
 import { getAllUsers, updateUserDepartment } from "../../api/userApi";
 
 function Departments() {

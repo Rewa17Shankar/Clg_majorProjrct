@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getPayrolls, generatePayroll, addBonus, addDeduction, updatePayroll } from "../../api/payrollApi";
+import { getPayrolls, generatePayroll, addBonus, addDeduction, updatePayroll } from "../../api/HR/payrollApi";
 
 const Payroll = () => {
   const [payrolls, setPayrolls] = useState([]);

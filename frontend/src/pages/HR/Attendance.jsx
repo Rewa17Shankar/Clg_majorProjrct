@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { markAttendance, getAttendance } from "../../api/attendanceApi";
-import { getShifts } from "../../api/shiftApi";
+import { markAttendance, getAttendance } from "../../api/HR/attendanceApi";
+import { getShifts } from "../../api/HR/shiftApi";
 
 function Attendance() {
   const [shifts, setShifts] = useState([]);
