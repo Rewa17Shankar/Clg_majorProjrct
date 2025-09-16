@@ -2,7 +2,7 @@
 import axios from "axios";
 
 // const BASE = "http://localhost:5000/api/leaves";
-const API = "https://clg-majorprojrct.onrender.com/api/leaves";
+const BASE = "https://clg-majorprojrct.onrender.com/api/leaves";
 /** Leave Types */
 export const getLeaveTypes = () => axios.get(`${BASE}/types`);
 export const createLeaveType = (type) => axios.post(`${BASE}/types`, { type });
