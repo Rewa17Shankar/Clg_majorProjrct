@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import supabase from "../config/supabaseClient.js";
 
-const JWT_SECRET = process.env.JWT_SECRET || "mysecret";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // ✅ Register User
 export const registerUser = async (req, res) => {
@@ -54,12 +54,19 @@ export const loginUser = async (req, res) => {
 
     // Generate JWT
     const token = jwt.sign(
-      { id: users.id, role: users.role },
-      JWT_SECRET,
-      { expiresIn: "1d" }
+      { id: users.id,username: users.username, role: users.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
     );
 
-    res.json({ message: "Login successful", token, role: users.role });
+    // res.json({ message: "Login successful", token, role: users.role });
+    res.json({
+      userId: users.id,
+      username: users.username,
+      roleId: users.role_id,
+      token, // ✅ include JWT here
+      mustReset: users.must_reset,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

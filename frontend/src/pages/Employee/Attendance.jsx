@@ -7,58 +7,22 @@ const Employee = () => {
   const [attendance, setAttendance] = useState([]);
   const [message, setMessage] = useState("");
 
-  // const fetchAttendance = async () => {
-  //   const res = await getAttendanceAPI(user.id);
-  //   setAttendance(res.data);
-  // };
-
-  // const handleClockIn = async () => {
-  //   const res = await clockInAPI(user.id);
-  //   setMessage(res.data.message);
-  //   fetchAttendance();
-  // };
-
-  // const handleClockOut = async () => {
-  //   const res = await clockOutAPI(user.id);
-  //   setMessage(res.data.message);
-  //   fetchAttendance();
-  // };
-const fetchAttendance = async () => {
-  if (!user) return; // ✅ don't call API if user is null
-  try {
+  const fetchAttendance = async () => {
     const res = await getAttendanceAPI(user.id);
     setAttendance(res.data);
-  } catch (err) {
-    console.error(err);
-  }
-};
+  };
 
-const handleClockIn = async () => {
-  if (!user) return;
-  try {
+  const handleClockIn = async () => {
     const res = await clockInAPI(user.id);
     setMessage(res.data.message);
     fetchAttendance();
-  } catch (err) {
-    console.error(err);
-    setMessage("Clock in failed.");
-  }
-};
+  };
 
-const handleClockOut = async () => {
-  if (!user) return;
-  try {
+  const handleClockOut = async () => {
     const res = await clockOutAPI(user.id);
     setMessage(res.data.message);
     fetchAttendance();
-  } catch (err) {
-    console.error(err);
-    setMessage("Clock out failed.");
-  }
-};
-
-// Optionally, at the top of the component render:
-if (!user) return <p>Loading user info...</p>;
+  };
 
   useEffect(() => {
     fetchAttendance();

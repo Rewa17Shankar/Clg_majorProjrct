@@ -1,38 +1,10 @@
 import express from "express";
-import supabase from "../config/supabaseClient.js";
+import { clockIn, clockOut } from "../controllers/attendanceController.js";
+import { authMiddleware } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-// Mark attendance
-router.post("/", async (req, res) => {
-  try {
-    const { employee_id, shift_id, date, status } = req.body;
-
-    const { data, error } = await supabase
-      .from("attendance")
-      .insert([{ employee_id, shift_id, date, status }]);
-
-    if (error) throw error;
-    res.status(201).json({ message: "Attendance marked successfully", data });
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-// Get attendance list
-router.get("/", async (req, res) => {
-  try {
-    const { data, error } = await supabase.from("attendance").select(`
-      id, date, status,
-      users (name, email),
-      shifts (shift_name, start_time, end_time)
-    `);
-
-    if (error) throw error;
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+router.post("/clock-in", authMiddleware, clockIn);
+router.post("/clock-out", authMiddleware, clockOut);
 
 export default router;

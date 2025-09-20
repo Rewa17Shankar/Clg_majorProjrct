@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Employees from "./Employees"; 
 import Departments from "./Departments";
 import Designations from "./Designations";
-import Attendance from "./Attendance";
+import Attendance from "../Common/Attendance";
 import Resignations from "./Resignations"; 
 import Leaves from "./Leaves";
 import Recruitment from "./Recruitment";

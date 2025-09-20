@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuthContext } from "../../context/AuthContext";
 import { useUser } from "@clerk/clerk-react"; 
 import { useNavigate } from "react-router-dom";
+// import { useAuth } from "../../hooks/useAuth";
 
 const RoleSelect = () => {
   const { setRole, setUser } = useAuthContext();
