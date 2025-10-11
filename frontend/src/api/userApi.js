@@ -3,16 +3,37 @@ import axios from "axios";
 // const API = "http://localhost:5000/api/users";
 const API = "https://clg-majorprojrct.onrender.com/api/users";
 
+// export const updateUserDepartment = async (userId, departmentId) => {
+//   const res = await axios.put(`${API}/update-department`, {
+//     userId,
+//     departmentId,
+//   });
+//   return res.data;
+// };
+
+// export const updateUserDepartment = async (userId, departmentId) => {
+//   const res = await axios.patch(`${API}/${userId}/department`, { 
+//     department_id: departmentId 
+//   });
+//   return res.data;
+// };
+
+// export const updateUserDesignation = async (id, designationId) => {
+//   const res = await axios.put(`${API}/${id}/designation`, { designationId });
+//   return res.data;
+// };
+
 export const updateUserDepartment = async (userId, departmentId) => {
-  const res = await axios.put(`${API}/update-department`, {
-    userId,
-    departmentId,
+  const res = await axios.patch(`${API}/${userId}/department`, { 
+    department_id: departmentId 
   });
   return res.data;
 };
 
-export const updateUserDesignation = async (id, designationId) => {
-  const res = await axios.put(`${API}/${id}/designation`, { designationId });
+export const updateUserDesignation = async (userId, designationId) => {
+  const res = await axios.patch(`${API}/${userId}/designation`, { 
+    designation_id: designationId 
+  });
   return res.data;
 };
 
@@ -56,8 +77,14 @@ export const updatePassword = async (userId, newPassword) => {
   return res.data;
 };
 
+// export const getAllUsers = async () => {
+//   const res = await axios.get(API);
+//   return res.data;
+// };
 export const getAllUsers = async () => {
+  console.log("📡 API Call: GET", API);
   const res = await axios.get(API);
+  console.log("📡 API Response:", res.data);
   return res.data;
 };
 

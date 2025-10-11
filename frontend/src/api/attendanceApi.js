@@ -1,18 +1,4 @@
-// // src/api/attendanceApi.js
-// import request from "./Api"; // ✅ now it works
-
-// export const clockIn = () =>
-//   request("/attendance/clock-in", { method: "POST" });
-
-// export const clockOut = () =>
-//   request("/attendance/clock-out", { method: "POST" });
-
-// export const getEmployeeAttendance = (employeeId) =>
-//   request(`/attendance/employee/${employeeId}`, { method: "GET" });
-
-// export const getAllAttendance = () =>
-//   request("/attendance", { method: "GET" });
-import request from "./Api"; // your existing request helper
+import request from "./Api"; 
 
 // Get token from localStorage
 const getToken = () => {

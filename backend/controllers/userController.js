@@ -434,12 +434,17 @@ export const resetPassword = async (req, res) => {
 export const getAllUsers = async (req, res) => {
   try {
     // get users with must_reset and salary
+    console.log("🔍 getAllUsers called");
     const { data: users, error: userError } = await supabase
       .from("users")
-      .select("id, username, email, role_id, must_reset, base_salary");
+      .select("id, username, email, role_id, must_reset, base_salary,department_id,designation_id");
 
-    if (userError) throw userError;
+    if (userError){
+      console.error("❌ Error fetching users:", userError);
+       throw userError;
+    }
 
+     console.log("✅ Fetched users from DB:", users.length);
     // get roles
     const { data: roles, error: roleError } = await supabase
       .from("roles")
@@ -447,19 +452,73 @@ export const getAllUsers = async (req, res) => {
 
     if (roleError) throw roleError;
 
+        // ✅ Get departments
+    const { data: departments, error: deptError } = await supabase
+      .from("departments")
+      .select("id, name");
+
+    if (deptError) {
+      console.error("❌ Error fetching departments:", deptError);
+      throw deptError;
+    }
+
+    console.log("✅ Departments from DB:", departments.length);
+
+    // ✅ Get designations
+    const { data: designations, error: desigError } = await supabase
+      .from("designations")
+      .select("id, title");
+
+    if (desigError) {
+      console.error("❌ Error fetching designations:", desigError);
+      throw desigError;
+    }
+
     // map role_id → role_name
     const roleMap = {};
     roles.forEach((r) => (roleMap[r.id] = r.role_name));
 
-    const formatted = users.map((u) => ({
-      id: u.id,
-      name: u.username,
-      email: u.email,
-      role: roleMap[u.role_id] || "Unknown",
-      must_reset: u.must_reset,
-      base_salary: u.base_salary || 0,
-    }));
+    // ✅ Create department map
+    const deptMap = {};
+    departments.forEach((d) => (deptMap[d.id] = d.name));
+    console.log("📊 Department map:", deptMap);
 
+    // ✅ Create designation map
+    const desigMap = {};
+    designations.forEach((d) => (desigMap[d.id] = d.title));
+
+    // const formatted = users.map((u) => ({
+      
+    //   id: u.id,
+    //   name: u.username,
+    //   email: u.email,
+    //   role: roleMap[u.role_id] || "Unknown",
+    //   must_reset: u.must_reset,
+    //   base_salary: u.base_salary || 0,
+    // }));
+
+       // ✅ Format with department and designation info
+    const formatted = users.map((u) => {
+      const departmentName = u.department_id ? (deptMap[u.department_id] || "Unknown") : "None";
+      const designationName = u.designation_id ? (desigMap[u.designation_id] || "Unknown") : "Not Assigned";
+      
+      return {
+        id: u.id,
+        username: u.username,
+        name: u.username,
+        email: u.email,
+        role: roleMap[u.role_id] || "Unknown",
+        department_id: u.department_id,           // ✅ Include this
+        department: departmentName,                // ✅ Include this
+        designation_id: u.designation_id,         // ✅ Include this
+        designation: designationName,              // ✅ Include this
+        must_reset: u.must_reset,
+        base_salary: u.base_salary || 0,
+      };
+    });
+    
+    console.log("✅ Formatted users:", formatted.length);
+    console.log("📊 Sample user:", formatted[0]);
     return res.json(formatted);
   } catch (err) {
     return res.status(500).json({ error: err.message });

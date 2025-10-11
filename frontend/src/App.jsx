@@ -75,6 +75,7 @@
 
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Landing from "./pages/Landing/Landing";
 import RoleSelect from "./pages/Auth/RoleSelect";
 import Login from "./pages/Auth/Login";
 import ResetPassword from "./pages/Auth/ResetPassword";
@@ -89,7 +90,9 @@ function App() {
     <Router>
       <Routes>
         {/* Main Routes */}
-        <Route path="/" element={<RoleSelect />} />
+        <Route path="/" element={<Landing />} />
+        
+        <Route path="/role-select" element={<RoleSelect />} />
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<SuperAdmin />} />
         <Route path="/reset-password/:userId" element={<ResetPassword />} />
