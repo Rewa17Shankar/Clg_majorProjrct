@@ -26,11 +26,12 @@ import cors from "cors";
 dotenv.config();
 
 const app = express();
+
 app.use(cors({
   origin: 'https://clg-major-projrct.vercel.app', 
   credentials: true // if you need cookies
 }));
-app.use(cors());
+// app.use(cors());
 app.use(express.json());
 
 // Routes
