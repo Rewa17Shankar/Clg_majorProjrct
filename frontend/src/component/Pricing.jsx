@@ -1,181 +1,304 @@
-import { Check, CreditCard, Shield, Zap } from 'lucide-react';
-
-const plans = [
-  {
-    name: 'Starter',
-    price: '49',
-    description: 'Perfect for small teams',
-    features: [
-      'Up to 50 employees',
-      'Basic attendance tracking',
-      'Leave management',
-      'Employee directory',
-      'Email support',
-      'Mobile app access'
-    ],
-    popular: false
-  },
-  {
-    name: 'Professional',
-    price: '149',
-    description: 'For growing organizations',
-    features: [
-      'Up to 200 employees',
-      'Advanced attendance & shifts',
-      'Payroll automation',
-      'Performance reviews',
-      'Custom workflows',
-      'API access',
-      'Priority support',
-      'Advanced analytics'
-    ],
-    popular: true
-  },
-  {
-    name: 'Enterprise',
-    price: 'Custom',
-    description: 'For large-scale operations',
-    features: [
-      'Unlimited employees',
-      'Full HRMS suite',
-      'White-label solution',
-      'Custom integrations',
-      'Dedicated account manager',
-      'SLA guarantee',
-      '24/7 phone support',
-      'Advanced security & compliance'
-    ],
-    popular: false
-  }
-];
+import { Check } from 'lucide-react';
+import { useState } from 'react';
 
 export default function Pricing() {
+  const [activeTab, setActiveTab] = useState('individual');
+  const [billingPeriod, setBillingPeriod] = useState('monthly');
+
+  const individualPlans = [
+    {
+      icon: (
+        <svg className="w-12 h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="12" cy="12" r="10" strokeWidth="1.5"/>
+          <path d="M12 8v8M8 12h8" strokeWidth="1.5"/>
+        </svg>
+      ),
+      name: 'Free',
+      subtitle: 'Meet OnBoard-X',
+      price: '$0',
+      period: '',
+      buttonText: 'Use OnBoard-X for free',
+      buttonStyle: 'secondary',
+      features: [
+        'Up to 10 employees',
+        'Basic attendance tracking',
+        'Leave management',
+        'Employee directory',
+        'Email support'
+      ]
+    },
+    {
+      icon: (
+        <svg className="w-12 h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="12" cy="12" r="10" strokeWidth="1.5"/>
+          <path d="M12 6v12M6 12l6-6 6 6" strokeWidth="1.5"/>
+        </svg>
+      ),
+      name: 'Pro',
+      subtitle: 'Research, code, and organize',
+      price: billingPeriod === 'monthly' ? '$149' : '$129',
+      period: billingPeriod === 'monthly' ? '/month billed monthly' : '/month billed annually',
+      buttonText: 'Get Pro plan',
+      buttonStyle: 'primary',
+      popular: false,
+      features: [
+        'Everything in Free and:',
+        'Up to 200 employees',
+        'Advanced attendance & shifts',
+        'Payroll automation',
+        'Performance reviews',
+        'Custom workflows',
+        'API access',
+        'Priority support'
+      ]
+    },
+    {
+      icon: (
+        <svg className="w-12 h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="12" cy="12" r="10" strokeWidth="1.5"/>
+          <path d="M8 12h8M12 8v8" strokeWidth="1.5"/>
+          <path d="M16 8l-8 8M8 8l8 8" strokeWidth="1.5"/>
+        </svg>
+      ),
+      name: 'Max',
+      subtitle: 'Higher limits, priority access',
+      price: 'From $299',
+      period: '/month billed monthly',
+      buttonText: 'Get Max plan',
+      buttonStyle: 'secondary',
+      highlight: true,
+      features: [
+        'Everything in Pro, plus:',
+        'Choose 5x or 20x more usage than Pro*',
+        'Higher output limits for all tasks',
+        'Early access to advanced features',
+        'Priority access at high traffic times',
+        'Dedicated account manager'
+      ]
+    }
+  ];
+
+  const teamPlans = [
+    {
+      name: 'Team',
+      subtitle: 'For collaboration across organizations',
+      buttonText: 'Get a Team plan',
+      buttonStyle: 'secondary',
+      seats: [
+        { name: 'Standard seat', price: '$25', description: 'Chat, projects, and more', details: 'Per person / month with annual subscription discount. $30 if billed monthly. Minimum 5 members.' },
+        { name: 'Premium seat', price: '$150', description: 'Includes Premium Features', details: 'Per person / month. Minimum 5 members.' }
+      ],
+      features: [
+        'Everything in Pro*, plus:',
+        'More usage',
+        'Central billing and administration',
+        'Early access to collaboration features',
+        'Premium features available with premium seat'
+      ]
+    },
+    {
+      name: 'Enterprise',
+      subtitle: 'For businesses operating at scale',
+      buttonText: 'Contact sales',
+      buttonStyle: 'primary',
+      features: [
+        'Everything in Team, plus:',
+        'More usage',
+        'Enhanced context window',
+        'Single sign-on (SSO) and domain capture',
+        'Role-based access with fine grained permissioning',
+        'System for Cross-domain Identity Management (SCIM)',
+        'Audit logs',
+        'Google Docs cataloging',
+        'Premium features available with premium seat',
+        'Compliance API for observability and monitoring'
+      ]
+    }
+  ];
+
   return (
-    <section id="pricing" className="relative py-32 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 overflow-hidden">
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
+    <section id="pricing" className="relative py-20 bg-slate-950 overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgwLCAyMTIsIDI1NSwgMC4wMykiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-20"></div>
 
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="text-center mb-16">
-          <span className="inline-block px-4 py-2 bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-full text-sm text-purple-400 mb-4">
-            Flexible Pricing
-          </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Choose Your
-            <span className="bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent"> Perfect Plan</span>
+      <div className="container mx-auto px-6 relative z-10 max-w-7xl">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+            Plans that grow with you
           </h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Scale effortlessly with our flexible pricing. All plans include secure payment processing.
-          </p>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16">
-          {plans.map((plan, index) => (
-            <div
-              key={index}
-              className={`relative p-8 rounded-2xl backdrop-blur-sm transition-all duration-300 hover:scale-105 ${
-                plan.popular
-                  ? 'bg-gradient-to-br from-slate-800 to-slate-900 border-2 border-purple-500 shadow-2xl shadow-purple-500/20'
-                  : 'bg-slate-900/50 border border-slate-700/50 hover:border-cyan-500/50'
+          {/* Tabs */}
+          <div className="inline-flex gap-2 p-1 bg-slate-900/50 rounded-lg border border-slate-800">
+            <button
+              onClick={() => setActiveTab('individual')}
+              className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                activeTab === 'individual'
+                  ? 'bg-slate-800 text-white'
+                  : 'text-gray-400 hover:text-white'
               }`}
             >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-cyan-500 to-purple-500 text-white text-sm font-semibold rounded-full">
-                  Most Popular
-                </div>
-              )}
-
-              <div className="mb-6">
-                <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
-                <p className="text-gray-400 text-sm">{plan.description}</p>
-              </div>
-
-              <div className="mb-8">
-                <div className="flex items-baseline gap-2">
-                  {plan.price !== 'Custom' && <span className="text-gray-400">$</span>}
-                  <span className="text-5xl font-bold text-white">{plan.price}</span>
-                  {plan.price !== 'Custom' && <span className="text-gray-400">/month</span>}
-                </div>
-              </div>
-
-              <ul className="space-y-4 mb-8">
-                {plan.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-start gap-3">
-                    <Check className={`w-5 h-5 mt-0.5 flex-shrink-0 ${
-                      plan.popular ? 'text-purple-400' : 'text-cyan-400'
-                    }`} />
-                    <span className="text-gray-300 text-sm">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <button className={`w-full py-3 rounded-lg font-semibold transition-all duration-300 ${
-                plan.popular
-                  ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white hover:shadow-xl hover:shadow-purple-500/50'
-                  : 'bg-slate-800 text-white border border-slate-700 hover:border-cyan-500/50 hover:bg-slate-700'
-              }`}>
-                {plan.price === 'Custom' ? 'Contact Sales' : 'Get Started'}
-              </button>
-            </div>
-          ))}
+              Individual
+            </button>
+            <button
+              onClick={() => setActiveTab('team')}
+              className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                activeTab === 'team'
+                  ? 'bg-slate-800 text-white'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Team & Enterprise
+            </button>
+          </div>
         </div>
 
-        <div className="max-w-4xl mx-auto">
-          <div className="relative p-10 bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-700/50 overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 rounded-full blur-3xl"></div>
-
-            <div className="relative z-10">
-              <div className="flex items-start gap-6 mb-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <CreditCard className="w-8 h-8 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-white mb-2">Secure Payment Integration</h3>
-                  <p className="text-gray-400">
-                    All plans include integrated payment gateway support for seamless subscription management and upgrades.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="flex items-start gap-3">
-                  <Shield className="w-6 h-6 text-cyan-400 flex-shrink-0 mt-1" />
-                  <div>
-                    <h4 className="text-white font-semibold mb-1">Bank-Level Security</h4>
-                    <p className="text-sm text-gray-400">256-bit SSL encryption</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <Zap className="w-6 h-6 text-purple-400 flex-shrink-0 mt-1" />
-                  <div>
-                    <h4 className="text-white font-semibold mb-1">Instant Processing</h4>
-                    <p className="text-sm text-gray-400">Real-time payment updates</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <Check className="w-6 h-6 text-emerald-400 flex-shrink-0 mt-1" />
-                  <div>
-                    <h4 className="text-white font-semibold mb-1">Multiple Gateways</h4>
-                    <p className="text-sm text-gray-400">Stripe, Razorpay, PayPal</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 pt-8 border-t border-slate-700">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div>
-                    <p className="text-white font-semibold mb-1">Ready to upgrade your plan?</p>
-                    <p className="text-sm text-gray-400">Seamlessly switch between plans anytime</p>
-                  </div>
-                  <button className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-lg font-semibold hover:shadow-xl hover:shadow-purple-500/50 transition-all duration-300 whitespace-nowrap">
-                    Upgrade Now
-                  </button>
-                </div>
+        {/* Individual Plans */}
+        {activeTab === 'individual' && (
+          <div>
+            {/* Billing Toggle */}
+            <div className="flex justify-end mb-8">
+              <div className="inline-flex gap-2 p-1 bg-slate-900/50 rounded-lg border border-slate-800">
+                <button
+                  onClick={() => setBillingPeriod('monthly')}
+                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                    billingPeriod === 'monthly'
+                      ? 'bg-slate-800 text-white'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  Monthly
+                </button>
+                <button
+                  onClick={() => setBillingPeriod('yearly')}
+                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                    billingPeriod === 'yearly'
+                      ? 'bg-slate-800 text-white'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  Yearly <span className="text-cyan-400 text-xs ml-1">Save 17%</span>
+                </button>
               </div>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {individualPlans.map((plan, index) => (
+                <div
+                  key={index}
+                  className={`relative p-8 rounded-2xl border transition-all duration-300 ${
+                    plan.highlight
+                      ? 'bg-slate-900/70 border-cyan-500/50 hover:border-cyan-500'
+                      : 'bg-slate-900/50 border-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  {/* Icon */}
+                  <div className="text-gray-400 mb-6">{plan.icon}</div>
+
+                  {/* Name & Subtitle */}
+                  <div className="mb-6">
+                    <h3 className="text-2xl font-bold text-white mb-1">{plan.name}</h3>
+                    {plan.highlight && (
+                      <p className="text-cyan-400 text-sm font-medium">{plan.subtitle}</p>
+                    )}
+                    {!plan.highlight && (
+                      <p className="text-gray-400 text-sm">{plan.subtitle}</p>
+                    )}
+                  </div>
+
+                  {/* Price */}
+                  <div className="mb-6">
+                    <div className="flex items-baseline gap-1 mb-1">
+                      <span className="text-4xl font-bold text-white">{plan.price}</span>
+                    </div>
+                    <p className="text-gray-400 text-sm">{plan.period}</p>
+                  </div>
+
+                  {/* Button */}
+                  <button
+                    className={`w-full py-3 rounded-lg font-medium transition-all duration-200 mb-8 ${
+                      plan.buttonStyle === 'primary'
+                        ? 'bg-white text-slate-900 hover:bg-gray-100'
+                        : 'bg-slate-800 text-white border border-slate-700 hover:bg-slate-700'
+                    }`}
+                  >
+                    {plan.buttonText}
+                  </button>
+
+                  {/* Features */}
+                  <ul className="space-y-3">
+                    {plan.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-300 text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </div>
+        )}
+
+        {/* Team & Enterprise Plans */}
+        {activeTab === 'team' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {teamPlans.map((plan, index) => (
+              <div
+                key={index}
+                className="p-8 rounded-2xl bg-slate-900/50 border border-slate-800 hover:border-slate-700 transition-all duration-300"
+              >
+                {/* Header */}
+                <div className="mb-8">
+                  <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
+                  <p className="text-gray-400 text-sm mb-6">{plan.subtitle}</p>
+                  
+                  <button
+                    className={`w-full py-3 rounded-lg font-medium transition-all duration-200 ${
+                      plan.buttonStyle === 'primary'
+                        ? 'bg-white text-slate-900 hover:bg-gray-100'
+                        : 'bg-slate-800 text-white border border-slate-700 hover:bg-slate-700'
+                    }`}
+                  >
+                    {plan.buttonText}
+                  </button>
+                </div>
+
+                {/* Seats (for Team plan) */}
+                {plan.seats && (
+                  <div className="mb-8 space-y-4">
+                    {plan.seats.map((seat, idx) => (
+                      <div key={idx} className="p-4 bg-slate-800/50 rounded-lg">
+                        <div className="flex items-baseline gap-2 mb-1">
+                          <span className="text-lg font-bold text-white">{seat.name}</span>
+                          <span className="text-2xl font-bold text-white ml-auto">{seat.price}</span>
+                        </div>
+                        <p className="text-gray-400 text-xs mb-2">{seat.description}</p>
+                        <p className="text-gray-500 text-xs">{seat.details}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Features */}
+                <ul className="space-y-3">
+                  {plan.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-start gap-3">
+                      <Check className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-300 text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Footer Note */}
+        <div className="mt-8 text-center">
+          <p className="text-gray-500 text-xs">
+            *Usage limits apply. Prices shown don't include applicable tax.
+          </p>
         </div>
       </div>
     </section>
