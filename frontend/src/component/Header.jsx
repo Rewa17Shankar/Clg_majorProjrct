@@ -91,9 +91,9 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-4">
-            <button className="hidden sm:block px-5 py-2 text-gray-300 hover:text-white transition-colors">
+            {/* <button className="hidden sm:block px-5 py-2 text-gray-300 hover:text-white transition-colors">
               Sign In
-            </button>
+            </button> */}
             <button className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300 font-medium">
               Get Started
             </button>
