@@ -78,7 +78,7 @@ export default function Preloader({ onLoadingComplete }) {
         >
           <div className="absolute inset-0 rounded-[18px] bg-gradient-to-br from-white/[0.03] to-transparent mix-blend-overlay"></div>
           <img
-            src="/LOGO.jpg"
+            src="/LOGO1.jpg"
             alt="HRMS Logo"
             className="w-[120px] h-[120px] object-cover opacity-80 mix-blend-lighten"
           />

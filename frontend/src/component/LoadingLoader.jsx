@@ -49,11 +49,8 @@ const LoadingLoader = () => {
       const outputPathElement = getPathElement('path-output');
       
       if (!pathElement || !outputPathElement) {
-        console.log('Path not found:', pathData.id);
         return;
       }
-      
-      console.log('Starting animation for:', feature, 'on', pathData.id);
       
       const dot = document.createElement('div');
       dot.className = 'moving-dot';
@@ -80,7 +77,6 @@ const LoadingLoader = () => {
           label.style.top = point.y + 'px';
           requestAnimationFrame(animateInput);
         } else {
-          // Reached center - now show on right side
           dot.remove();
           label.remove();
           
@@ -94,16 +90,12 @@ const LoadingLoader = () => {
             labelOutput.textContent = feature;
             document.body.appendChild(labelOutput);
             
-            // Position at start of output wire (right side of center)
             const outputPoint = getPointOnPath(outputPathElement, 0.1);
             dotOutput.style.left = outputPoint.x + 'px';
             dotOutput.style.top = outputPoint.y + 'px';
             labelOutput.style.left = (outputPoint.x + 25) + 'px';
             labelOutput.style.top = outputPoint.y + 'px';
             
-            console.log('Showing on right:', feature);
-            
-            // Show for 1.5 seconds then fade out
             setTimeout(() => {
               dotOutput.style.transition = 'opacity 0.5s ease-out';
               labelOutput.style.transition = 'opacity 0.5s ease-out';
@@ -113,7 +105,6 @@ const LoadingLoader = () => {
               setTimeout(() => {
                 dotOutput.remove();
                 labelOutput.remove();
-                console.log('Removed:', feature);
               }, 500);
             }, 1500);
           }, 200);
@@ -124,9 +115,6 @@ const LoadingLoader = () => {
     }
 
     function startBatch() {
-      console.log('Starting new batch...');
-      
-      // Get 3 random unique paths
       const availablePaths = [...paths];
       const selectedPaths = [];
       
@@ -136,7 +124,6 @@ const LoadingLoader = () => {
         availablePaths.splice(randomIndex, 1);
       }
       
-      // Get 3 random unique features
       const availableFeatures = [...features];
       const selectedFeatures = [];
       
@@ -146,10 +133,6 @@ const LoadingLoader = () => {
         availableFeatures.splice(randomIndex, 1);
       }
       
-      console.log('Selected paths:', selectedPaths.map(p => p.id));
-      console.log('Selected features:', selectedFeatures);
-      
-      // Start animations with staggered delays
       selectedPaths.forEach((path, index) => {
         setTimeout(() => {
           animateFeatureOnPath(selectedFeatures[index], path);
@@ -159,16 +142,12 @@ const LoadingLoader = () => {
 
     function startLoop() {
       startBatch();
-      
-      // Repeat every 7 seconds
       const interval = setInterval(() => {
         startBatch();
       }, 7000);
-      
       return () => clearInterval(interval);
     }
 
-    // Start after 1 second
     const timeout = setTimeout(() => {
       const cleanup = startLoop();
       return cleanup;
@@ -189,25 +168,17 @@ const LoadingLoader = () => {
       <div className="particle-loader"></div>
 
       <div className="loading-loader-container">
+        {/* UPDATED LOGO SECTION WITH IMAGE */}
         <div className="logo-container-loader">
           <div className="glow-effect-loader"></div>
-          <div className="logo-loader">
-            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="10" y="10" width="80" height="80" stroke="url(#gradient)" strokeWidth="3" rx="5"/>
-              <rect x="20" y="20" width="60" height="60" stroke="url(#gradient)" strokeWidth="2.5" opacity="0.6" rx="3"/>
-              <rect x="30" y="30" width="40" height="40" stroke="url(#gradient)" strokeWidth="2" opacity="0.3" rx="2"/>
-              <polygon points="50,25 65,40 65,60 50,75 35,60 35,40" stroke="url(#gradient)" strokeWidth="2.5" fill="rgba(0, 212, 255, 0.1)"/>
-              <circle cx="50" cy="50" r="10" fill="url(#gradient)">
-                <animate attributeName="r" values="8;12;8" dur="2s" repeatCount="indefinite"/>
-              </circle>
-              <defs>
-                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#00d4ff" stopOpacity="1" />
-                  <stop offset="50%" stopColor="#0099ff" stopOpacity="1" />
-                  <stop offset="100%" stopColor="#00d4ff" stopOpacity="1" />
-                </linearGradient>
-              </defs>
-            </svg>
+          <div className="logo-loader-with-image">
+            <div className="logo-border-ring"></div>
+            <div className="logo-border-ring-outer"></div>
+            <img 
+              src="/LOGO1.jpg" 
+              alt="OnBoard-X Logo" 
+              className="logo-image-center"
+            />
           </div>
           <div className="logo-text-loader" style={{ textTransform: 'none' }}>OnBoard-X</div>
         </div>
