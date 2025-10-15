@@ -1,4 +1,5 @@
 import { Users, Calendar, DollarSign, TrendingUp, Briefcase, UserCheck } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 
 const features = [
   {
@@ -34,6 +35,59 @@ const features = [
 ];
 
 export default function Features() {
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
+
+    const handleScroll = () => {
+      const scrollLeft = scrollContainer.scrollLeft;
+      const scrollWidth = scrollContainer.scrollWidth;
+      const clientWidth = scrollContainer.clientWidth;
+      
+      // Calculate the width of one set of cards (half of total width since we duplicated)
+      const singleSetWidth = scrollWidth / 3;
+
+      // If scrolled to the end, jump back to the start of the second set
+      if (scrollLeft >= singleSetWidth * 2) {
+        scrollContainer.scrollLeft = singleSetWidth;
+      }
+      
+      // If scrolled to the beginning, jump to the end of the first set
+      if (scrollLeft <= 0) {
+        scrollContainer.scrollLeft = singleSetWidth;
+      }
+    };
+
+    scrollContainer.addEventListener('scroll', handleScroll);
+    
+    // Set initial scroll position to the middle set
+    scrollContainer.scrollLeft = scrollContainer.scrollWidth / 3;
+
+    return () => scrollContainer.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const renderFeatureCard = (feature, index, keyPrefix = '') => {
+    const Icon = feature.icon;
+    return (
+      <div
+        key={`${keyPrefix}${index}`}
+        className="group relative w-80 flex-shrink-0 p-6 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10"
+      >
+        <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+          <Icon className="w-7 h-7 text-white" />
+        </div>
+        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors duration-300">
+          {feature.title}
+        </h3>
+        <p className="text-gray-400 text-sm leading-relaxed">
+          {feature.description}
+        </p>
+      </div>
+    );
+  };
+
   return (
     <section id="features" className="relative py-20 bg-slate-950 overflow-hidden">
       {/* Simple Grid Background */}
@@ -53,39 +107,27 @@ export default function Features() {
           </p>
         </div>
 
-        {/* Horizontal Scrollable Feature Bar */}
+        {/* Manual Infinite Scrolling Feature Bar */}
         <div className="relative">
           {/* Gradient Fade Edges */}
           <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-slate-950 to-transparent z-10 pointer-events-none"></div>
           <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-slate-950 to-transparent z-10 pointer-events-none"></div>
           
           {/* Scrollable Container */}
-          <div className="overflow-x-auto scrollbar-hide pb-4">
-            <div className="flex gap-6 min-w-max px-4">
-              {features.map((feature, index) => {
-                const Icon = feature.icon;
-                return (
-                  <div
-                    key={index}
-                    className="group relative w-80 p-6 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10"
-                  >
-                    {/* Icon */}
-                    <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                      <Icon className="w-7 h-7 text-white" />
-                    </div>
-
-                    {/* Title */}
-                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors duration-300">
-                      {feature.title}
-                    </h3>
-
-                    {/* Description */}
-                    <p className="text-gray-400 text-sm leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </div>
-                );
-              })}
+          <div 
+            ref={scrollRef}
+            className="overflow-x-scroll scrollbar-hide pb-4 scroll-smooth"
+            style={{ scrollBehavior: 'auto' }}
+          >
+            <div className="flex gap-6">
+              {/* First Duplicate Set (for seamless backward scroll) */}
+              {features.map((feature, index) => renderFeatureCard(feature, index, 'first-'))}
+              
+              {/* Main Set */}
+              {features.map((feature, index) => renderFeatureCard(feature, index, 'main-'))}
+              
+              {/* Second Duplicate Set (for seamless forward scroll) */}
+              {features.map((feature, index) => renderFeatureCard(feature, index, 'second-'))}
             </div>
           </div>
         </div>

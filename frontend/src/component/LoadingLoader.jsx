@@ -19,6 +19,9 @@ const LoadingLoader = () => {
       { id: 'path-5' }, { id: 'path-6' }, { id: 'path-7' }
     ];
 
+    let outputLabelsQueue = [];
+    let cleanupFunctions = [];
+
     function getPathElement(pathId) {
       return document.getElementById(pathId);
     }
@@ -44,7 +47,12 @@ const LoadingLoader = () => {
       }
     }
 
-    function animateFeatureOnPath(feature, pathData) {
+    // Smooth easing function for natural movement
+    function easeInOutCubic(t) {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    function animateFeatureOnPath(feature, pathData, batchStartTime, horizontalPosition = 0) {
       const pathElement = getPathElement(pathData.id);
       const outputPathElement = getPathElement('path-output');
       
@@ -52,66 +60,168 @@ const LoadingLoader = () => {
         return;
       }
       
+      // Create container for dot and label together (VERTICAL LAYOUT - COLUMN)
+      const container = document.createElement('div');
+      container.className = 'moving-container';
+      container.style.cssText = `
+        position: fixed; 
+        pointer-events: none; 
+        display: flex; 
+        flex-direction: column;
+        align-items: center; 
+        gap: 8px;
+        filter: drop-shadow(0 0 8px rgba(65, 209, 255, 0.6));
+      `;
+      
+      // Create dot with glow
       const dot = document.createElement('div');
       dot.className = 'moving-dot';
-      document.body.appendChild(dot);
+      dot.style.cssText = `
+        width: 12px; 
+        height: 12px; 
+        flex-shrink: 0;
+        box-shadow: 0 0 12px rgba(65, 209, 255, 0.8), 0 0 20px rgba(65, 209, 255, 0.4);
+      `;
       
+      // Create label with enhanced styling (BELOW THE DOT)
       const label = document.createElement('div');
       label.className = 'text-label';
       label.textContent = feature;
-      document.body.appendChild(label);
+      label.style.cssText = `
+        white-space: nowrap; 
+        transform: none;
+        text-shadow: 0 0 10px rgba(65, 209, 255, 0.5);
+        font-weight: 500;
+      `;
       
-      const inputDuration = 3000;
-      let inputStartTime = null;
+      container.appendChild(dot);
+      container.appendChild(label);
+      document.body.appendChild(container);
+      
+      const inputDuration = 4500;
+      let animationId = null;
       
       function animateInput(timestamp) {
-        if (!inputStartTime) inputStartTime = timestamp;
-        const elapsed = timestamp - inputStartTime;
-        const progress = Math.min(elapsed / inputDuration, 1);
+        const elapsed = timestamp - batchStartTime;
+        const linearProgress = Math.min(elapsed / inputDuration, 1);
         
-        if (progress < 1) {
+        // Apply smooth easing to the progress
+        const progress = easeInOutCubic(linearProgress);
+        
+        if (linearProgress < 1) {
           const point = getPointOnPath(pathElement, progress);
-          dot.style.left = point.x + 'px';
-          dot.style.top = point.y + 'px';
-          label.style.left = (point.x + 25) + 'px';
-          label.style.top = point.y + 'px';
-          requestAnimationFrame(animateInput);
-        } else {
-          dot.remove();
-          label.remove();
+          container.style.left = point.x + 'px';
+          container.style.top = point.y + 'px';
+          container.style.transform = 'translate(-50%, -50%)';
           
-          setTimeout(() => {
+          // Enhanced fade out - starts earlier and smoother
+          if (linearProgress > 0.40) {
+            const fadeProgress = (linearProgress - 0.40) / 0.60;
+            const easedFade = easeInOutCubic(fadeProgress);
+            const opacity = 1 - easedFade;
+            container.style.opacity = opacity;
+            
+            // Smooth scale down with enhanced easing
+            const scale = 1 - (easedFade * 0.5);
+            const blur = easedFade * 5;
+            container.style.transform = `translate(-50%, -50%) scale(${scale})`;
+            container.style.filter = `drop-shadow(0 0 8px rgba(65, 209, 255, ${0.6 * opacity})) blur(${blur}px)`;
+          }
+          
+          animationId = requestAnimationFrame(animateInput);
+        } else {
+          container.remove();
+          
+          // Reappear on right side with premium entrance (SAME CYAN COLOR)
+          const outputTimeout = setTimeout(() => {
+            const containerOutput = document.createElement('div');
+            containerOutput.className = 'moving-container-output';
+            containerOutput.style.cssText = `
+              position: fixed; 
+              z-index: 999999; 
+              pointer-events: none; 
+              display: flex; 
+              flex-direction: column;
+              align-items: center; 
+              gap: 10px; 
+              opacity: 0;
+              transform: translate(-50%, -50%) scale(0.7);
+              filter: blur(4px) drop-shadow(0 0 12px rgba(65, 209, 255, 0));
+              transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            `;
+            
             const dotOutput = document.createElement('div');
             dotOutput.className = 'moving-dot-output';
-            document.body.appendChild(dotOutput);
+            dotOutput.style.cssText = `
+              width: 12px; 
+              height: 12px; 
+              flex-shrink: 0;
+              box-shadow: 0 0 15px rgba(65, 209, 255, 0.9), 0 0 25px rgba(65, 209, 255, 0.5);
+            `;
             
             const labelOutput = document.createElement('div');
             labelOutput.className = 'text-label-output';
             labelOutput.textContent = feature;
-            document.body.appendChild(labelOutput);
+            labelOutput.style.cssText = `
+              white-space: nowrap; 
+              transform: none;
+              text-shadow: 0 0 12px rgba(65, 209, 255, 0.6);
+              font-weight: 600;
+              letter-spacing: 0.5px;
+              color: #9fe6fd;
+            `;
             
-            const outputPoint = getPointOnPath(outputPathElement, 0.1);
-            dotOutput.style.left = outputPoint.x + 'px';
-            dotOutput.style.top = outputPoint.y + 'px';
-            labelOutput.style.left = (outputPoint.x + 25) + 'px';
-            labelOutput.style.top = outputPoint.y + 'px';
+            containerOutput.appendChild(dotOutput);
+            containerOutput.appendChild(labelOutput);
+            document.body.appendChild(containerOutput);
             
+            // Position on the right side
+            const outputPoint = getPointOnPath(outputPathElement, 0.15);
+            const ITEM_SPACING = 220;
+            const horizontalOffset = horizontalPosition * ITEM_SPACING;
+            
+            containerOutput.style.left = (outputPoint.x + horizontalOffset) + 'px';
+            containerOutput.style.top = outputPoint.y + 'px';
+            
+            // Trigger premium entrance animation
             setTimeout(() => {
-              dotOutput.style.transition = 'opacity 0.5s ease-out';
-              labelOutput.style.transition = 'opacity 0.5s ease-out';
-              dotOutput.style.opacity = '0';
-              labelOutput.style.opacity = '0';
+              containerOutput.style.opacity = '1';
+              containerOutput.style.transform = 'translate(-50%, -50%) scale(1)';
+              containerOutput.style.filter = 'blur(0px) drop-shadow(0 0 12px rgba(65, 209, 255, 0.7))';
+            }, 50);
+            
+            outputLabelsQueue.push({ container: containerOutput });
+            
+            // Hold and then smooth exit
+            const fadeTimeout = setTimeout(() => {
+              containerOutput.style.transition = 'all 0.7s cubic-bezier(0.4, 0, 0.2, 1)';
+              containerOutput.style.opacity = '0';
+              containerOutput.style.transform = 'translate(-50%, -50%) scale(0.92)';
+              containerOutput.style.filter = 'blur(3px) drop-shadow(0 0 12px rgba(65, 209, 255, 0))';
               
-              setTimeout(() => {
-                dotOutput.remove();
-                labelOutput.remove();
-              }, 500);
-            }, 1500);
+              const removeTimeout = setTimeout(() => {
+                if (containerOutput.parentNode) containerOutput.remove();
+                
+                outputLabelsQueue = outputLabelsQueue.filter(
+                  item => item.container !== containerOutput
+                );
+              }, 700);
+              
+              cleanupFunctions.push(() => clearTimeout(removeTimeout));
+            }, 3000);
+            
+            cleanupFunctions.push(() => clearTimeout(fadeTimeout));
           }, 200);
+          
+          cleanupFunctions.push(() => clearTimeout(outputTimeout));
         }
       }
       
-      requestAnimationFrame(animateInput);    
+      animationId = requestAnimationFrame(animateInput);
+      cleanupFunctions.push(() => {
+        if (animationId) cancelAnimationFrame(animationId);
+        if (container.parentNode) container.remove();
+      });
     }
 
     function startBatch() {
@@ -133,10 +243,10 @@ const LoadingLoader = () => {
         availableFeatures.splice(randomIndex, 1);
       }
       
+      const batchStartTime = performance.now();
+      
       selectedPaths.forEach((path, index) => {
-        setTimeout(() => {
-          animateFeatureOnPath(selectedFeatures[index], path);
-        }, index * 400);
+        animateFeatureOnPath(selectedFeatures[index], path, batchStartTime, index);
       });
     }
 
@@ -144,17 +254,29 @@ const LoadingLoader = () => {
       startBatch();
       const interval = setInterval(() => {
         startBatch();
-      }, 7000);
+      }, 14000);
+      
+      cleanupFunctions.push(() => clearInterval(interval));
+      
       return () => clearInterval(interval);
     }
 
-    const timeout = setTimeout(() => {
-      const cleanup = startLoop();
-      return cleanup;
-    }, 1000);
-    
+    const initialTimeout = setTimeout(() => {
+      startLoop();
+    }, 800);
+
     return () => {
-      clearTimeout(timeout);
+      clearTimeout(initialTimeout);
+      
+      cleanupFunctions.forEach(cleanup => cleanup());
+      
+      outputLabelsQueue.forEach(item => {
+        if (item.container && item.container.parentNode) item.container.remove();
+      });
+      
+      document.querySelectorAll('.moving-container, .moving-container-output').forEach(el => {
+        if (el.parentNode) el.remove();
+      });
     };
   }, []);
 
@@ -168,7 +290,6 @@ const LoadingLoader = () => {
       <div className="particle-loader"></div>
 
       <div className="loading-loader-container">
-        {/* UPDATED LOGO SECTION WITH IMAGE */}
         <div className="logo-container-loader">
           <div className="glow-effect-loader"></div>
           <div className="logo-loader-with-image">
@@ -197,19 +318,19 @@ const LoadingLoader = () => {
               <stop offset="0%" stopColor="#41D1FF" stopOpacity="1"/>
               <stop offset="100%" stopColor="#41D1FF" stopOpacity="0"/>
             </radialGradient>
-
             <linearGradient id="outputBaseGradient" x1="0%" y1="0%" x2="100%" y2="0%" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#00ff88" stopOpacity="0"/>
-              <stop offset="20%" stopColor="#00ff88" stopOpacity="0.3"/>
-              <stop offset="50%" stopColor="#ffffff" stopOpacity="0.8"/>
-              <stop offset="80%" stopColor="#00ff88" stopOpacity="0.3"/>
-              <stop offset="100%" stopColor="#00ff88" stopOpacity="0"/>
-            </linearGradient>
+            <stop offset="0%" stopColor="#00d4ff" stopOpacity="0"/>
+            <stop offset="20%" stopColor="#00d4ff" stopOpacity="0.3"/>
+            <stop offset="50%" stopColor="#ffffff" stopOpacity="0.8"/>
+            <stop offset="80%" stopColor="#00d4ff" stopOpacity="0.3"/>
+            <stop offset="100%" stopColor="#00d4ff" stopOpacity="0"/>
+          </linearGradient>
 
-            <radialGradient id="outputGlowGradient" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#00ff88" stopOpacity="1"/>
-              <stop offset="100%" stopColor="#00ff88" stopOpacity="0"/>
-            </radialGradient>
+          <radialGradient id="outputGlowGradient" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#41D1FF" stopOpacity="1"/>
+            <stop offset="100%" stopColor="#41D1FF" stopOpacity="0"/>
+          </radialGradient>
+
           </defs>
           
           <g id="path-1-group">
