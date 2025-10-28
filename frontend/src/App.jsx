@@ -241,6 +241,7 @@ import HR from "./pages/HR/HR";
 import Manager from "./pages/Manager/Manager";
 import Employee from "./pages/Employee/Employee";
 import ProtectedRoute from "./component/ProtectedRoute";
+import SSOCallback from './components/SSOCallback';
 
 function App() {
   return (
@@ -255,6 +256,7 @@ function App() {
 
         {/* SuperAdmin Route - Protected by Clerk ONLY (NO ProtectedRoute wrapper) */}
         <Route path="/admin" element={<SuperAdmin />} />
+        <Route path="/admin/sso-callback" element={<SSOCallback />} />
 
         {/* Dashboard - All authenticated users */}
         <Route
