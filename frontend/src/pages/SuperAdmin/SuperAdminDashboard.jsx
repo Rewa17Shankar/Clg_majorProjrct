@@ -876,6 +876,7 @@ import { LayoutDashboard, UserPlus, Users, LogOut, UserCircle, Briefcase, Shield
 import { addUser, getUserCounts, getAllUsers, resetUserPassword, updateUserSalary } from "../../api/userApi";
 import { getDepartments, getDesignationsByDept } from "../../api/HR/departmentApi";
 import { useNavigate } from "react-router-dom";
+import { useClerk } from "@clerk/clerk-react";
 
 function SuperAdminDashboard() {
   const [form, setForm] = useState({
@@ -901,12 +902,49 @@ function SuperAdminDashboard() {
   const [designations, setDesignations] = useState([]);
 
   const navigate = useNavigate();
+   const { signOut } = useClerk();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    sessionStorage.clear();
-    navigate("/");
+  // const handleLogout = () => {
+  //   localStorage.removeItem("token");
+  //   localStorage.removeItem("role");
+  //   sessionStorage.clear();
+  //   navigate("/");
+  // };
+
+
+  //   const handleLogout = async () => {
+  //   try {
+  //     await signOut();
+  //     localStorage.removeItem("token");
+  //     localStorage.removeItem("role");
+  //     localStorage.removeItem("user");
+  //     sessionStorage.clear();
+  //     navigate("/role-select");
+  //   } catch (error) {
+  //     console.error("Logout error:", error);
+  //   }
+  // };
+
+    const handleLogout = async () => {
+    try {
+      console.log("🚪 Logging out...");
+      
+      // Clear all storage first
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Sign out from Clerk
+      await signOut();
+      
+      console.log("✅ Signed out, redirecting...");
+      
+      // Hard redirect (this WILL work)
+      window.location.href = "/role-select";
+    } catch (error) {
+      console.error("❌ Logout error:", error);
+      // Even on error, redirect
+      window.location.href = "/role-select";
+    }
   };
 
   const fetchCounts = async () => {

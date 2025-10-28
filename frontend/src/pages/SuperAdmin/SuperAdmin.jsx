@@ -35,6 +35,8 @@ const SuperAdmin = () => {
             <SignIn 
               routing="path" 
               path="/admin"
+              forceRedirectUrl="/admin"
+              fallbackRedirectUrl="/admin"
               appearance={{
                 elements: {
                   rootBox: "mx-auto",
