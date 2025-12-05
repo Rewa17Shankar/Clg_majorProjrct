@@ -1,4 +1,4 @@
-The live link is here:- https://clg-major-projrct.vercel.app/
+The live link is here:- https://clg-major-project.vercel.app/
 HR:- Yug Bothra(yugyug.b)
 Manager:- Chetan Choudhary(Chetan@123)
 
